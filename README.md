@@ -192,6 +192,12 @@ node/
 │   └── carts.js          # Rutas de carritos
 ├── package.json          # Configuración del proyecto
 └── README.md            # Este archivo
+├── public/               # Archivos estáticos
+│   └── js/
+│       └── realtimeProducts.js
+├── views/                # Plantillas Handlebars
+│   ├── home.handlebars
+│   └── realTimeProducts.handlebars
 ```
 
 ## 💾 Almacenamiento
@@ -241,6 +247,38 @@ curl -X POST http://localhost:8080/api/carts/1/product/1
 
 - `npm start`: Inicia el servidor
 - `npm run dev`: Inicia el servidor (alias de start)
+
+## 🔁 WebSockets y Vistas en Tiempo Real
+
+El proyecto expone una vista en tiempo real que usa `socket.io` + `Handlebars`:
+
+- `GET /home` — Muestra la lista de productos (renderizado por servidor, sin websockets)
+- `GET /realtimeproducts` — Muestra la lista de productos en tiempo real (usando websockets).
+
+En la vista `/realtimeproducts` encontrarás un formulario simple para crear productos (este formulario envía los datos por websocket) y botones para eliminar productos. Cada vez que se crea o elimina un producto (ya sea por websocket o por HTTP), el servidor emite un evento `updateProducts` a todos los clientes conectados y la lista se actualiza automáticamente.
+
+### ¿Cómo se integra la creación por HTTP con sockets?
+
+La integración es directa: el router de productos (`/api/products`) emite un `io.emit('updateProducts', products)` luego de crear, actualizar o eliminar un producto — así todos los clientes suscritos ven la actualización.
+
+Si deseas emitir un evento desde dentro del `POST /api/products` puedes usar la instancia de `io` que está guardada en `global.appData.io`. El código que ya está en el proyecto hace exactamente eso — por eso la vista en tiempo real se actualiza cuando usas `POST /api/products`.
+
+### Probar la vista en tiempo real
+
+1. Inicia el servidor:
+```bash
+npm start
+```
+2. Abre dos pestañas del navegador en `http://localhost:8080/realtimeproducts`.
+3. En una pestaña agrega un producto mediante el formulario; verás que en la otra pestaña la lista se actualiza.
+4. También puedes usar el endpoint HTTP `POST /api/products` para agregar un producto y comprobar que la lista se actualiza automáticamente en las vistas en tiempo real.
+
+---
+## 💡 Notas y Sugerencias
+
+- Esto es una implementación de ejemplo: los datos se almacenan en memoria por simplicidad. Para producción, se recomienda usar una base de datos persistente (MongoDB, MySQL) y agregar autenticación y validación más robusta.
+- Si quieres que la creación por formulario en `realTimeProducts` no use sockets, puedes convertir el `form` para que haga una petición `fetch` a `POST /api/products`; pero si lo haces, asegúrate de continuar emitiendo `updateProducts` desde el servidor luego de crear el producto para que los demás clientes reciban la actualización.
+
 
 ## 🐛 Manejo de Errores
 

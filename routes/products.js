@@ -6,7 +6,7 @@ const getAppData = () => global.appData;
 const getProducts = () => getAppData().products;
 const generateProductId = () => getAppData().generateProductId();
 
-// GET / - Listar todos los productos
+// Listar todos los productos
 router.get('/', (req, res) => {
     try {
         res.json({
@@ -22,7 +22,7 @@ router.get('/', (req, res) => {
     }
 });
 
-// GET /:pid - Obtener producto por ID
+// Obtener producto por ID
 router.get('/:pid', (req, res) => {
     try {
         const pid = parseInt(req.params.pid);
@@ -49,7 +49,7 @@ router.get('/:pid', (req, res) => {
     }
 });
 
-// POST / - Crear nuevo producto
+// Crear nuevo producto
 router.post('/', (req, res) => {
     try {
         const { title, description, code, price, status, stock, category, thumbnails } = req.body;
@@ -62,7 +62,7 @@ router.post('/', (req, res) => {
             });
         }
         
-        // Verificar que el código no esté duplicado
+        // Verificar duplicado
         const products = getProducts();
         const existingProduct = products.find(p => p.code === code);
         if (existingProduct) {
@@ -86,6 +86,10 @@ router.post('/', (req, res) => {
         };
         
         products.push(newProduct);
+
+        // Emitir actualización por websocket
+        const io = getAppData().io;
+        if (io) io.emit('updateProducts', products);
         
         res.status(201).json({
             status: 'success',
@@ -101,7 +105,7 @@ router.post('/', (req, res) => {
     }
 });
 
-// PUT /:pid - Actualizar producto por ID
+// Actualizar producto por ID
 router.put('/:pid', (req, res) => {
     try {
         const pid = parseInt(req.params.pid);
@@ -134,6 +138,10 @@ router.put('/:pid', (req, res) => {
         });
         
         products[productIndex] = updatedProduct;
+
+        // Emitir actualización por websocket
+        const io = getAppData().io;
+        if (io) io.emit('updateProducts', products);
         
         res.json({
             status: 'success',
@@ -149,7 +157,7 @@ router.put('/:pid', (req, res) => {
     }
 });
 
-// DELETE /:pid - Eliminar producto por ID
+// Eliminar producto por ID
 router.delete('/:pid', (req, res) => {
     try {
         const pid = parseInt(req.params.pid);
@@ -164,6 +172,10 @@ router.delete('/:pid', (req, res) => {
         }
         
         const deletedProduct = products.splice(productIndex, 1)[0];
+
+        // Emitir actualización por websocket
+        const io = getAppData().io;
+        if (io) io.emit('updateProducts', products);
         
         res.json({
             status: 'success',

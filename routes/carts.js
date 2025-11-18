@@ -128,31 +128,4 @@ router.post('/:cid/product/:pid', (req, res) => {
 
 module.exports = router;
 
-// productos de ejemplo:
-products.push(
-    {
-        id: 1,
-        title: "Laptop Gaming",
-        description: "Laptop para gaming de alta gama",
-        code: "LAPTOP001",
-        price: 1500000,
-        status: true,
-        stock: 10,
-        category: "Electrónicos",
-        thumbnails: ["laptop1.jpg", "laptop2.jpg"]
-    },
-    {
-        id: 2,
-        title: "Mouse Inalámbrico",
-        description: "Mouse gaming inalámbrico RGB",
-        code: "MOUSE001",
-        price: 50,
-        status: true,
-        stock: 25,
-        category: "Accesorios",
-        thumbnails: ["mouse1.jpg"]
-    }
-);
 
-
-  
