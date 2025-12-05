@@ -4,16 +4,12 @@ const router = express.Router();
 const Product = require('../models/Product');
 const Cart = require('../models/Cart');
 
-/**
- * GET /products
- * Muestra lista de productos con paginación, filtros y ordenamiento
- * Query params: limit, page, query, sort
- */
+
 router.get('/products', async (req, res) => {
     try {
         const { limit = 10, page = 1, query, sort } = req.query;
 
-        // Convertir a números
+        // Convertir a numeros
         const pageNum = Math.max(1, Number(page));
         const limitNum = Math.max(1, Number(limit));
 
@@ -31,7 +27,7 @@ router.get('/products', async (req, res) => {
             }
         }
 
-        // Construir opciones de ordenamiento
+        // rdenamiento
         let sortOptions = {};
         if (sort === 'asc') {
             sortOptions.price = 1;
@@ -39,10 +35,10 @@ router.get('/products', async (req, res) => {
             sortOptions.price = -1;
         }
 
-        // Calcular skip
+        // skip
         const skip = (pageNum - 1) * limitNum;
 
-        // Ejecutar consultas en paralelo
+        // consultaso
         const [products, totalProducts] = await Promise.all([
             Product.find(filter)
                 .sort(sortOptions)
@@ -56,7 +52,7 @@ router.get('/products', async (req, res) => {
         const hasPrevPage = pageNum > 1;
         const hasNextPage = pageNum < totalPages;
 
-        // Construir URLs para navegación
+        // Construir URL
         const baseUrl = `/products`;
         const queryParams = query ? `&query=${query}` : '';
         const sortParams = sort ? `&sort=${sort}` : '';
@@ -70,7 +66,7 @@ router.get('/products', async (req, res) => {
             ? `${baseUrl}?page=${pageNum + 1}${limitParams}${queryParams}${sortParams}`
             : null;
 
-        // Convertir documentos de Mongoose a objetos planos para Handlebars
+        
         const productsPlain = products.map(p => p.toObject());
 
         console.log('📊 Renderizando /products con:', { productsCount: productsPlain.length, totalPages });
@@ -95,13 +91,13 @@ router.get('/products', async (req, res) => {
 
 /**
  * GET /products/:pid
- * Muestra detalles completos de un producto específico
+ 
  */
 router.get('/products/:pid', async (req, res) => {
     try {
         const { pid } = req.params;
 
-        // Validar que sea un ObjectId válido
+        // Objectid
         if (!pid.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).render('error', { message: 'ID de producto inválido' });
         }
@@ -112,7 +108,7 @@ router.get('/products/:pid', async (req, res) => {
             return res.status(404).render('error', { message: 'Producto no encontrado' });
         }
 
-        // Convertir a objeto plano para Handlebars
+        
         const productPlain = product.toObject();
         res.render('productDetail', { product: productPlain });
     } catch (error) {
@@ -122,18 +118,17 @@ router.get('/products/:pid', async (req, res) => {
 
 /**
  * GET /carts/:cid
- * Muestra los productos de un carrito específico
  */
 router.get('/carts/:cid', async (req, res) => {
     try {
         const { cid } = req.params;
 
-        // Validar que sea un ObjectId válido
+        // Objectid
         if (!cid.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).render('error', { message: 'ID de carrito inválido' });
         }
 
-        // Usar populate para obtener detalles completos de los productos
+        // p0pulate
         const cart = await Cart.findById(cid).populate('products.product');
 
         if (!cart) {
@@ -145,7 +140,6 @@ router.get('/carts/:cid', async (req, res) => {
             return sum + (item.product.price * item.quantity);
         }, 0);
 
-        // Convertir a objeto plano para Handlebars (evita restricciones de seguridad)
         const plainCart = cart.toObject();
 
         res.render('cart', { cart: plainCart, total });
@@ -154,19 +148,17 @@ router.get('/carts/:cid', async (req, res) => {
     }
 });
 
-// Home: muestra lista de productos renderizada en server (mantener para compatibilidad)
+// Home: 
 router.get('/home', async (req, res) => {
     try {
         const products = await Product.find();
-        // Convertir a objetos planos para Handlebars (evita restricciones de seguridad)
-        const plainProducts = products.map(p => p.toObject());
+         const plainProducts = products.map(p => p.toObject());
         res.render('home', { products: plainProducts });
     } catch (error) {
         res.status(500).render('error', { message: error.message });
     }
 });
 
-// Vista demo - Muestra productos hardcodeados (sin MongoDB)
 router.get('/demo', async (req, res) => {
     try {
         const { limit = 5, sort } = req.query;
@@ -176,12 +168,11 @@ router.get('/demo', async (req, res) => {
     }
 });
 
-// Vista en tiempo real con sockets (mantener para compatibilidad)
+// Vista en tiempo real 
 router.get('/realtimeproducts', async (req, res) => {
     try {
         const products = await Product.find();
-        // Convertir a objetos planos para Handlebars (evita restricciones de seguridad)
-        const plainProducts = products.map(p => p.toObject());
+      const plainProducts = products.map(p => p.toObject());
         res.render('realTimeProducts', { products: plainProducts });
     } catch (error) {
         res.status(500).render('error', { message: error.message });
