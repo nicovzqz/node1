@@ -6,7 +6,7 @@ const Product = require('../models/Product');
 
 /**
  * POST /api/carts/
- * Crea un nuevo carrito vacío
+ * Crea un nuevo carrito
  */
 router.post('/', async (req, res) => {
     try {
@@ -31,13 +31,13 @@ router.post('/', async (req, res) => {
 
 /**
  * GET /api/carts/:cid
- * Obtiene los productos de un carrito específico con populate
+ * Obtiene los productos de un carrito
  */
 router.get('/:cid', async (req, res) => {
     try {
         const { cid } = req.params;
 
-        // Validar que sea un ObjectId válido
+        // ObjectId 
         if (!cid.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({
                 status: 'error',
@@ -45,7 +45,7 @@ router.get('/:cid', async (req, res) => {
             });
         }
 
-        // Usar populate para obtener los detalles completos de los productos
+        // Usar populate
         const cart = await Cart.findById(cid).populate('products.product');
 
         if (!cart) {
@@ -69,13 +69,13 @@ router.get('/:cid', async (req, res) => {
 
 /**
  * POST /api/carts/:cid/product/:pid
- * Agrega un producto al carrito o incrementa su cantidad si ya existe
+ * Agrega un producto al carrito
  */
 router.post('/:cid/product/:pid', async (req, res) => {
     try {
         const { cid, pid } = req.params;
 
-        // Validar que sean ObjectIds válidos
+        // ObjectIds
         if (!cid.match(/^[0-9a-fA-F]{24}$/) || !pid.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({
                 status: 'error',
@@ -83,7 +83,7 @@ router.post('/:cid/product/:pid', async (req, res) => {
             });
         }
 
-        // Verificar que exista el carrito
+        // existe el carrito?
         const cart = await Cart.findById(cid);
         if (!cart) {
             return res.status(404).json({
@@ -92,7 +92,7 @@ router.post('/:cid/product/:pid', async (req, res) => {
             });
         }
 
-        // Verificar que exista el producto
+        // existe el producto??
         const product = await Product.findById(pid);
         if (!product) {
             return res.status(404).json({
@@ -101,13 +101,13 @@ router.post('/:cid/product/:pid', async (req, res) => {
             });
         }
 
-        // Buscar si el producto ya está en el carrito
+        // Buscar producto
         const existingProductIndex = cart.products.findIndex(
             p => p.product.toString() === pid
         );
 
         if (existingProductIndex !== -1) {
-            // Incrementar cantidad
+            // + cantidad
             cart.products[existingProductIndex].quantity += 1;
         } else {
             // Agregar nuevo producto
@@ -119,7 +119,7 @@ router.post('/:cid/product/:pid', async (req, res) => {
 
         await cart.save();
 
-        // Populate para devolver los detalles completos
+        // Populate 
         await cart.populate('products.product');
 
         res.json({
@@ -143,7 +143,7 @@ router.delete('/:cid/products/:pid', async (req, res) => {
     try {
         const { cid, pid } = req.params;
 
-        // Validar que sean ObjectIds válidos
+        // ObjectIds
         if (!cid.match(/^[0-9a-fA-F]{24}$/) || !pid.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({
                 status: 'error',
@@ -151,7 +151,7 @@ router.delete('/:cid/products/:pid', async (req, res) => {
             });
         }
 
-        // Buscar el carrito
+        // Buscar el carrto
         const cart = await Cart.findById(cid);
         if (!cart) {
             return res.status(404).json({
@@ -175,7 +175,7 @@ router.delete('/:cid/products/:pid', async (req, res) => {
 
         await cart.save();
 
-        // Populate para devolver los detalles completos
+        // Populate 
         await cart.populate('products.product');
 
         res.json({
@@ -193,15 +193,14 @@ router.delete('/:cid/products/:pid', async (req, res) => {
 
 /**
  * PUT /api/carts/:cid
- * Actualiza todos los productos del carrito con un arreglo de productos
- * Body esperado: { products: [ { product: ID, quantity: N }, ... ] }
+ 
  */
 router.put('/:cid', async (req, res) => {
     try {
         const { cid } = req.params;
         const { products } = req.body;
 
-        // Validar que sea un ObjectId válido
+        // ObjectId 
         if (!cid.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({
                 status: 'error',
@@ -209,7 +208,7 @@ router.put('/:cid', async (req, res) => {
             });
         }
 
-        // Validar que se proporcione un array de productos
+        // array de productos
         if (!Array.isArray(products)) {
             return res.status(400).json({
                 status: 'error',
@@ -230,7 +229,7 @@ router.put('/:cid', async (req, res) => {
         cart.products = products;
         await cart.save();
 
-        // Populate para devolver los detalles completos
+        // Populate
         await cart.populate('products.product');
 
         res.json({
@@ -248,15 +247,14 @@ router.put('/:cid', async (req, res) => {
 
 /**
  * PUT /api/carts/:cid/products/:pid
- * Actualiza SOLO la cantidad de un producto en el carrito
- * Body esperado: { quantity: N }
+ 
  */
 router.put('/:cid/products/:pid', async (req, res) => {
     try {
         const { cid, pid } = req.params;
         const { quantity } = req.body;
 
-        // Validar que sean ObjectIds válidos
+        // bjectIds 
         if (!cid.match(/^[0-9a-fA-F]{24}$/) || !pid.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({
                 status: 'error',
@@ -264,7 +262,7 @@ router.put('/:cid/products/:pid', async (req, res) => {
             });
         }
 
-        // Validar que se proporcione una cantidad válida
+        // cantidad valida
         if (quantity === undefined || Number(quantity) < 1) {
             return res.status(400).json({
                 status: 'error',
@@ -297,7 +295,7 @@ router.put('/:cid/products/:pid', async (req, res) => {
         cart.products[productIndex].quantity = Number(quantity);
         await cart.save();
 
-        // Populate para devolver los detalles completos
+        // Populate 
         await cart.populate('products.product');
 
         res.json({
@@ -321,7 +319,7 @@ router.delete('/:cid', async (req, res) => {
     try {
         const { cid } = req.params;
 
-        // Validar que sea un ObjectId válido
+        // Objectid
         if (!cid.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({
                 status: 'error',
