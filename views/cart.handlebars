@@ -85,14 +85,14 @@
 
 {{!-- Registrar helper multiply --}}
 <script>
-// Este helper se registraría en el servidor normalmente
-// Por ahora lo dejaremos en el HTML
+
+
 </script>
 
 <script>
 const cartId = '{{cart._id}}';
 
-// Actualizar cantidad de un producto
+// cantidad de un producto
 document.querySelectorAll('.update-quantity').forEach(button => {
     button.addEventListener('click', async function() {
         const productId = this.getAttribute('data-product-id');
@@ -118,7 +118,7 @@ document.querySelectorAll('.update-quantity').forEach(button => {
     });
 });
 
-// Eliminar producto del carrito
+// Eliminar producto
 document.querySelectorAll('.remove-item').forEach(button => {
     button.addEventListener('click', async function() {
         const productId = this.getAttribute('data-product-id');
