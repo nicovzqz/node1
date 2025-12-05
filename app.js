@@ -16,8 +16,12 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/ecommerce'
 const Product = require('./models/Product');
 const Cart = require('./models/Cart');
 
-// Conectar a MongoDB
-mongoose.connect(MONGO_URI)
+// Conectar a MongoDB con opciones actualizadas
+mongoose.connect(MONGO_URI, {
+    serverSelectionTimeoutMS: 3000,
+    socketTimeoutMS: 3000,
+    connectTimeoutMS: 3000
+})
     .then(() => {
         console.log('✅ Conectado a MongoDB');
         // Seeding de productos de ejemplo si la BD está vacía
@@ -26,8 +30,8 @@ mongoose.connect(MONGO_URI)
     .catch((err) => {
         console.error('⚠️  Advertencia: No se pudo conectar a MongoDB');
         console.error('   Error:', err.message);
-        console.log('💡 Para usar la aplicación, asegúrate de que MongoDB esté corriendo en', MONGO_URI);
-        console.log('   O configura una nueva URL en el archivo .env\n');
+        console.log('💡 Verifica que MongoDB esté corriendo en', MONGO_URI);
+        console.log('   En Windows: mongod --dbpath c:/mongodb/data\n');
         // No salir del proceso, permitir que el servidor inicie sin BD
     });
 
@@ -146,10 +150,15 @@ global.appData.io = io;
 io.on('connection', (socket) => {
     console.log('🔌 Nuevo cliente conectado, socket id=', socket.id);
 
-    // Enviar la lista actual al conectar
-    Product.find().then(products => {
-        socket.emit('updateProducts', products);
-    });
+    // Enviar la lista actual al conectar (con manejo de error)
+    Product.find()
+        .then(products => {
+            socket.emit('updateProducts', products);
+        })
+        .catch(err => {
+            console.log('⚠️ Error al obtener productos:', err.message);
+            socket.emit('updateProducts', []);
+        });
 
     // Cuando se recibe una petición de agregar por socket
     socket.on('addProduct', async (prod) => {
@@ -168,6 +177,7 @@ io.on('connection', (socket) => {
             const allProducts = await Product.find();
             io.emit('updateProducts', allProducts);
         } catch (error) {
+            console.error('❌ Error al agregar producto:', error.message);
             socket.emit('error', { message: error.message });
         }
     });
@@ -179,6 +189,7 @@ io.on('connection', (socket) => {
             const allProducts = await Product.find();
             io.emit('updateProducts', allProducts);
         } catch (error) {
+            console.error('❌ Error al eliminar producto:', error.message);
             socket.emit('error', { message: error.message });
         }
     });

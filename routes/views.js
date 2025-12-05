@@ -153,6 +153,16 @@ router.get('/home', async (req, res) => {
     }
 });
 
+// Vista demo - Muestra productos hardcodeados (sin MongoDB)
+router.get('/demo', async (req, res) => {
+    try {
+        const { limit = 5, sort } = req.query;
+        res.render('productosDemo', { limit, sort });
+    } catch (error) {
+        res.status(500).render('error', { message: error.message });
+    }
+});
+
 // Vista en tiempo real con sockets (mantener para compatibilidad)
 router.get('/realtimeproducts', async (req, res) => {
     try {
