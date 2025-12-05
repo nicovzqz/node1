@@ -70,8 +70,14 @@ router.get('/products', async (req, res) => {
             ? `${baseUrl}?page=${pageNum + 1}${limitParams}${queryParams}${sortParams}`
             : null;
 
+        // Convertir documentos de Mongoose a objetos planos para Handlebars
+        const productsPlain = products.map(p => p.toObject());
+
+        console.log('📊 Renderizando /products con:', { productsCount: productsPlain.length, totalPages });
+        console.log('🔍 Primer producto:', productsPlain[0]);
+
         res.render('products', {
-            products,
+            products: productsPlain,
             totalPages,
             page: pageNum,
             hasPrevPage,
@@ -106,7 +112,9 @@ router.get('/products/:pid', async (req, res) => {
             return res.status(404).render('error', { message: 'Producto no encontrado' });
         }
 
-        res.render('productDetail', { product });
+        // Convertir a objeto plano para Handlebars
+        const productPlain = product.toObject();
+        res.render('productDetail', { product: productPlain });
     } catch (error) {
         res.status(500).render('error', { message: error.message });
     }
@@ -137,7 +145,10 @@ router.get('/carts/:cid', async (req, res) => {
             return sum + (item.product.price * item.quantity);
         }, 0);
 
-        res.render('cart', { cart, total });
+        // Convertir a objeto plano para Handlebars (evita restricciones de seguridad)
+        const plainCart = cart.toObject();
+
+        res.render('cart', { cart: plainCart, total });
     } catch (error) {
         res.status(500).render('error', { message: error.message });
     }
@@ -147,7 +158,9 @@ router.get('/carts/:cid', async (req, res) => {
 router.get('/home', async (req, res) => {
     try {
         const products = await Product.find();
-        res.render('home', { products });
+        // Convertir a objetos planos para Handlebars (evita restricciones de seguridad)
+        const plainProducts = products.map(p => p.toObject());
+        res.render('home', { products: plainProducts });
     } catch (error) {
         res.status(500).render('error', { message: error.message });
     }
@@ -167,7 +180,9 @@ router.get('/demo', async (req, res) => {
 router.get('/realtimeproducts', async (req, res) => {
     try {
         const products = await Product.find();
-        res.render('realTimeProducts', { products });
+        // Convertir a objetos planos para Handlebars (evita restricciones de seguridad)
+        const plainProducts = products.map(p => p.toObject());
+        res.render('realTimeProducts', { products: plainProducts });
     } catch (error) {
         res.status(500).render('error', { message: error.message });
     }
