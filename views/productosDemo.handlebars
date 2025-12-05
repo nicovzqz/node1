@@ -1,12 +1,10 @@
 {{#> layout}}
 <div class="container mt-5">
     <div class="alert alert-info" role="alert">
-        <strong>ℹ️ Modo Demo (Sin MongoDB)</strong> - Para datos persistentes, configura MongoDB
-        <a href="/MONGODB_SETUP.md" class="btn btn-sm btn-primary ml-2">Ver instrucciones</a>
-    </div>
+        </div>
 
     <h1 class="mb-4">
-        <i class="fas fa-shopping-bag"></i> Catálogo de Productos - DEMO
+        <i class="fas fa-shopping-bag"></i> Catálogo de Productos 
     </h1>
 
     <!-- Filtros -->
@@ -14,7 +12,7 @@
         <div class="col-md-12">
             <form method="GET" class="form-inline">
                 <div class="form-group mr-3">
-                    <label for="limit" class="mr-2">Elementos por página:</label>
+                    <label for="limit" class="mr-2">Elementos por pgina:</label>
                     <select name="limit" id="limit" class="form-control" onchange="this.form.submit()">
                         <option value="5" {{#eq limit 5}}selected{{/eq}}>5</option>
                         <option value="10" {{#eq limit 10}}selected{{/eq}}>10</option>
