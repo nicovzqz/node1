@@ -6,7 +6,7 @@ const Product = require('../models/Product');
 
 /**
  * POST /api/carts/
- * Crea un nuevo carrito
+ * Crea nuevo carrito
  */
 router.post('/', async (req, res) => {
     try {
@@ -31,7 +31,7 @@ router.post('/', async (req, res) => {
 
 /**
  * GET /api/carts/:cid
- * Obtiene los productos de un carrito
+ roductos de un carrito
  */
 router.get('/:cid', async (req, res) => {
     try {
@@ -69,7 +69,7 @@ router.get('/:cid', async (req, res) => {
 
 /**
  * POST /api/carts/:cid/product/:pid
- * Agrega un producto al carrito
+ * Agrega al carrito
  */
 router.post('/:cid/product/:pid', async (req, res) => {
     try {
@@ -137,7 +137,7 @@ router.post('/:cid/product/:pid', async (req, res) => {
 
 /**
  * DELETE /api/carts/:cid/products/:pid
- * Elimina un producto específico del carrito
+ * Elimina un producto 
  */
 router.delete('/:cid/products/:pid', async (req, res) => {
     try {
