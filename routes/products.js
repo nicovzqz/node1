@@ -3,28 +3,19 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
 
-/**
- * GET /api/products/
- * Obtiene productos con filtrado, paginación y ordenamiento
- * Query params:
- *  - limit: número de elementos por página (default: 10)
- *  - page: página a buscar (default: 1)
- *  - query: filtro por categoría o disponibilidad (e.g., "category=Electrónicos" o "status=true")
- *  - sort: ordenamiento por precio (asc/desc)
- */
+
 router.get('/', async (req, res) => {
     try {
         const { limit = 10, page = 1, query, sort } = req.query;
 
-        // Convertir a números
+        // Convertir a num
         const pageNum = Math.max(1, Number(page));
         const limitNum = Math.max(1, Number(limit));
 
-        // Construir filtro
+        // filtro
         let filter = {};
 
         if (query) {
-            // Permitir búsqueda por categoría o estado
             if (query.includes('=')) {
                 const [key, value] = query.split('=');
                 if (key === 'category') {
@@ -35,7 +26,7 @@ router.get('/', async (req, res) => {
             }
         }
 
-        // Construir opciones de ordenamiento
+        // ordenamiento
         let sortOptions = {};
         if (sort === 'asc') {
             sortOptions.price = 1;
@@ -43,10 +34,10 @@ router.get('/', async (req, res) => {
             sortOptions.price = -1;
         }
 
-        // Calcular skip
+        // skip
         const skip = (pageNum - 1) * limitNum;
 
-        // Ejecutar consultas en paralelo
+       
         const [products, totalProducts] = await Promise.all([
             Product.find(filter)
                 .sort(sortOptions)
@@ -74,7 +65,7 @@ router.get('/', async (req, res) => {
             ? `${baseUrl}?page=${pageNum + 1}${limitParams}${queryParams}${sortParams}`
             : null;
 
-        // Respuesta estructurada según especificación
+        // Respuesta 
         res.json({
             status: 'success',
             payload: products,
@@ -97,13 +88,13 @@ router.get('/', async (req, res) => {
 
 /**
  * GET /api/products/:pid
- * Obtiene un producto específico por ID
+ * Obtiene un producto x ID
  */
 router.get('/:pid', async (req, res) => {
     try {
         const { pid } = req.params;
 
-        // Validar que sea un ObjectId válido
+        // ObjectId
         if (!pid.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({
                 status: 'error',
@@ -134,13 +125,13 @@ router.get('/:pid', async (req, res) => {
 
 /**
  * POST /api/products/
- * Crea un nuevo producto
+ * Crea nuevo producto
  */
 router.post('/', async (req, res) => {
     try {
         const { title, description, code, price, status, stock, category, thumbnails } = req.body;
 
-        // Validar campos requeridos
+        // Validar 
         if (!title || !description || !code || price === undefined || stock === undefined || !category) {
             return res.status(400).json({
                 status: 'error',
@@ -148,7 +139,7 @@ router.post('/', async (req, res) => {
             });
         }
 
-        // Verificar que el código sea único
+        // Verificr
         const existingProduct = await Product.findOne({ code });
         if (existingProduct) {
             return res.status(400).json({
@@ -171,7 +162,7 @@ router.post('/', async (req, res) => {
 
         await newProduct.save();
 
-        // Emitir evento a todos los clientes conectados
+        
         if (global.appData.io) {
             const allProducts = await Product.find();
             global.appData.io.emit('updateProducts', allProducts);
@@ -198,7 +189,7 @@ router.put('/:pid', async (req, res) => {
     try {
         const { pid } = req.params;
 
-        // Validar que sea un ObjectId válido
+        // ObjectId
         if (!pid.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({
                 status: 'error',
@@ -223,7 +214,7 @@ router.put('/:pid', async (req, res) => {
             });
         }
 
-        // Emitir evento a todos los clientes conectados
+        
         if (global.appData.io) {
             const allProducts = await Product.find();
             global.appData.io.emit('updateProducts', allProducts);
@@ -250,7 +241,7 @@ router.delete('/:pid', async (req, res) => {
     try {
         const { pid } = req.params;
 
-        // Validar que sea un ObjectId válido
+        // Objectid
         if (!pid.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({
                 status: 'error',
@@ -267,7 +258,7 @@ router.delete('/:pid', async (req, res) => {
             });
         }
 
-        // Emitir evento a todos los clientes conectados
+       
         if (global.appData.io) {
             const allProducts = await Product.find();
             global.appData.io.emit('updateProducts', allProducts);
