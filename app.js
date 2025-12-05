@@ -17,18 +17,18 @@ const Product = require('./models/Product');
 const Cart = require('./models/Cart');
 
 // Conectar a MongoDB
-mongoose.connect(MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+mongoose.connect(MONGO_URI)
     .then(() => {
         console.log('✅ Conectado a MongoDB');
         // Seeding de productos de ejemplo si la BD está vacía
         seedDatabase();
     })
     .catch((err) => {
-        console.error('❌ Error conectando a MongoDB:', err);
-        process.exit(1);
+        console.error('⚠️  Advertencia: No se pudo conectar a MongoDB');
+        console.error('   Error:', err.message);
+        console.log('💡 Para usar la aplicación, asegúrate de que MongoDB esté corriendo en', MONGO_URI);
+        console.log('   O configura una nueva URL en el archivo .env\n');
+        // No salir del proceso, permitir que el servidor inicie sin BD
     });
 
 // Función para poblar la BD con datos iniciales
