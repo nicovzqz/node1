@@ -3,7 +3,7 @@ const socket = io();
 const productListContainer = document.getElementById('productsList');
 const addProductForm = document.getElementById('addProductForm');
 
-// Actualizar render de lista
+// Actualizar
 function renderProducts(products) {
     productListContainer.innerHTML = '';
     products.forEach(p => {
@@ -20,7 +20,7 @@ function renderProducts(products) {
     });
 }
 
-// Escuchar lista actualizada
+// lista actualizada
 socket.on('updateProducts', (products) => {
     renderProducts(products);
 });
@@ -31,7 +31,7 @@ socket.on('error', (err) => {
     alert(err.message || 'Ocurrió un error del socket');
 });
 
-// Enviar nuevo producto por socket
+// Enviar nuevo
 addProductForm?.addEventListener('submit', (e) => {
     e.preventDefault();
     const product = {
@@ -49,7 +49,7 @@ addProductForm?.addEventListener('submit', (e) => {
     addProductForm.reset();
 });
 
-// Delegación: eliminar producto
+// eliminar producto
 productListContainer?.addEventListener('click', (e) => {
     if (e.target.classList.contains('deleteBtn')) {
         const pid = e.target.dataset.id;
