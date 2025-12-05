@@ -1,0 +1,124 @@
+{{!-- views/productDetail.handlebars --}}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title mb-3">{{product.title}}</h1>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p><strong>Categoría:</strong> {{product.category}}</p>
+                            <p><strong>Código:</strong> {{product.code}}</p>
+                            <p><strong>Estado:</strong> 
+                                {{#if product.status}}
+                                <span class="badge badge-success">Disponible</span>
+                                {{else}}
+                                <span class="badge badge-danger">No Disponible</span>
+                                {{/if}}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Stock:</strong> {{product.stock}} unidades</p>
+                            <p class="h3 text-primary">${{product.price}}</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5>Descripción</h5>
+                        <p>{{product.description}}</p>
+                    </div>
+
+                    {{#if product.thumbnails}}
+                    <div class="mb-4">
+                        <h5>Imágenes</h5>
+                        <div class="row">
+                            {{#each product.thumbnails}}
+                            <div class="col-md-4 mb-2">
+                                <img src="{{this}}" alt="Producto" class="img-fluid" style="max-width: 100%; height: auto;">
+                            </div>
+                            {{/each}}
+                        </div>
+                    </div>
+                    {{/if}}
+
+                    <div class="mb-4">
+                        <h5>Información del Producto</h5>
+                        <p><strong>ID:</strong> {{product._id}}</p>
+                        <p><strong>Creado:</strong> {{product.createdAt}}</p>
+                        <p><strong>Actualizado:</strong> {{product.updatedAt}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h5 class="card-title">Agregar al Carrito</h5>
+                    
+                    {{#if product.status}}
+                    <form id="addToCartForm">
+                        <div class="form-group">
+                            <label for="quantity">Cantidad:</label>
+                            <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" max="{{product.stock}}">
+                        </div>
+                        <button type="submit" class="btn btn-success btn-block btn-lg">
+                            <i class="fas fa-shopping-cart"></i> Agregar al Carrito
+                        </button>
+                    </form>
+                    {{else}}
+                    <div class="alert alert-danger">
+                        Este producto no está disponible en este momento
+                    </div>
+                    {{/if}}
+
+                    <a href="/products" class="btn btn-secondary btn-block mt-2">
+                        <i class="fas fa-arrow-left"></i> Volver al Catálogo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('addToCartForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const quantity = document.getElementById('quantity').value;
+    const productId = '{{product._id}}';
+    
+    // Primero crear un carrito si no existe
+    try {
+        // Obtener o crear carrito
+        let cartId = localStorage.getItem('cartId');
+        
+        if (!cartId) {
+            const cartResponse = await fetch('/api/carts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const cartData = await cartResponse.json();
+            cartId = cartData.payload._id;
+            localStorage.setItem('cartId', cartId);
+        }
+        
+        // Agregar producto al carrito
+        const response = await fetch(`/api/carts/${cartId}/product/${productId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ quantity })
+        });
+        
+        if (response.ok) {
+            alert('Producto agregado al carrito exitosamente');
+        } else {
+            alert('Error al agregar producto al carrito');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al agregar producto al carrito');
+    }
+});
+</script>

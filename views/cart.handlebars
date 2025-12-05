@@ -1,0 +1,166 @@
+{{!-- views/cart.handlebars --}}
+<div class="container mt-5">
+    <h1 class="mb-4">Mi Carrito</h1>
+
+    {{#if cart.products.length}}
+    <div class="row">
+        <div class="col-md-8">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Subtotal</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each cart.products}}
+                        <tr data-product-id="{{this.product._id}}">
+                            <td>
+                                <a href="/products/{{this.product._id}}">{{this.product.title}}</a>
+                                <br>
+                                <small class="text-muted">{{this.product.category}}</small>
+                            </td>
+                            <td>${{this.product.price}}</td>
+                            <td>
+                                <input type="number" class="form-control quantity-input" value="{{this.quantity}}" min="1" style="width: 80px;">
+                            </td>
+                            <td>${{multiply this.product.price this.quantity}}</td>
+                            <td>
+                                <button class="btn btn-sm btn-warning update-quantity" data-cart-id="{{../cart._id}}" data-product-id="{{this.product._id}}">
+                                    Actualizar
+                                </button>
+                                <button class="btn btn-sm btn-danger remove-item" data-cart-id="{{../cart._id}}" data-product-id="{{this.product._id}}">
+                                    Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h5 class="card-title">Resumen del Carrito</h5>
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Cantidad de artículos:</span>
+                        <strong id="item-count">{{cart.products.length}}</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Total:</span>
+                        <strong class="h5 text-primary" id="total-price">${{total}}</strong>
+                    </div>
+
+                    <button class="btn btn-success btn-block btn-lg mb-2">
+                        <i class="fas fa-credit-card"></i> Proceder al Pago
+                    </button>
+
+                    <button class="btn btn-warning btn-block mb-2" id="clear-cart">
+                        <i class="fas fa-trash"></i> Vaciar Carrito
+                    </button>
+
+                    <a href="/products" class="btn btn-secondary btn-block">
+                        <i class="fas fa-arrow-left"></i> Continuar Comprando
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{else}}
+    <div class="alert alert-info">
+        <h5>Tu carrito está vacío</h5>
+        <p>No hay productos en tu carrito. <a href="/products">Haz clic aquí para ver nuestro catálogo.</a></p>
+    </div>
+    {{/if}}
+</div>
+
+{{!-- Registrar helper multiply --}}
+<script>
+// Este helper se registraría en el servidor normalmente
+// Por ahora lo dejaremos en el HTML
+</script>
+
+<script>
+const cartId = '{{cart._id}}';
+
+// Actualizar cantidad de un producto
+document.querySelectorAll('.update-quantity').forEach(button => {
+    button.addEventListener('click', async function() {
+        const productId = this.getAttribute('data-product-id');
+        const quantityInput = this.parentElement.parentElement.querySelector('.quantity-input');
+        const newQuantity = parseInt(quantityInput.value);
+
+        try {
+            const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: newQuantity })
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error al actualizar cantidad');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al actualizar cantidad');
+        }
+    });
+});
+
+// Eliminar producto del carrito
+document.querySelectorAll('.remove-item').forEach(button => {
+    button.addEventListener('click', async function() {
+        const productId = this.getAttribute('data-product-id');
+
+        if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {
+            try {
+                const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Error al eliminar producto');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al eliminar producto');
+            }
+        }
+    });
+});
+
+// Vaciar carrito completamente
+document.getElementById('clear-cart').addEventListener('click', async function() {
+    if (confirm('¿Estás seguro de que deseas vaciar el carrito completamente?')) {
+        try {
+            const response = await fetch(`/api/carts/${cartId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error al vaciar carrito');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al vaciar carrito');
+        }
+    }
+});
+</script>
