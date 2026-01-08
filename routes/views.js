@@ -4,6 +4,10 @@ const router = express.Router();
 const Product = require('../models/Product');
 const Cart = require('../models/Cart');
 
+// Ruta raíz que redirige a /products
+router.get('/', (req, res) => {
+    res.redirect('/products');
+});
 
 router.get('/products', async (req, res) => {
     try {

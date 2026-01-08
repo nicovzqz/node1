@@ -129,16 +129,6 @@ app.use('/api/products', productsRouter);
 app.use('/api/carts', cartsRouter);
 app.use('/', viewsRouter);
 
-app.get('/', (req, res) => {
-    res.json({ 
-        message: 'Servidor funcionando correctamente',
-        endpoints: {
-            products: '/api/products',
-            carts: '/api/carts'
-        }
-    });
-});
-
 // Iniciar servidor HTTP + socket.io
 const server = http.createServer(app);
 const io = new Server(server);
