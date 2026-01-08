@@ -18,9 +18,9 @@ const Cart = require('./models/Cart');
 
 // Conectar a MongoDB con opciones actualizadas
 mongoose.connect(MONGO_URI, {
-    serverSelectionTimeoutMS: 3000,
-    socketTimeoutMS: 3000,
-    connectTimeoutMS: 3000
+    serverSelectionTimeoutMS: 30000,
+    socketTimeoutMS: 45000,
+    connectTimeoutMS: 30000
 })
     .then(() => {
         console.log('✅ Conectado a MongoDB');
